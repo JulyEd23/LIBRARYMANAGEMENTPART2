@@ -21,15 +21,13 @@ namespace LIBRARYMANAGEMENTPART2
 
         public MainViewModel()
         {
-            SqlDataAdapter node_borrower = new SqlDataAdapter("SELECT LastName,FirstName,Gender,BorrowerType,ID FROM [BORROWER]", con);
-            SqlDataAdapter node_book = new SqlDataAdapter("SELECT ID,Title, Category, Availability FROM[BOOK]", con);
-            SqlDataAdapter node_author = new SqlDataAdapter("SELECT LastName,FirstName FROM[Author]", con);
+            SqlDataAdapter node_borrower = new SqlDataAdapter("SELECT LastName,FirstName,Gender,BorrowerType,BorrowerID,BorrowStatus FROM [BORROWER]", con);
+            SqlDataAdapter node_book = new SqlDataAdapter("SELECT BookID,Title, Category, Availability,AuthorID FROM[BOOK]", con);
+            SqlDataAdapter node_author = new SqlDataAdapter("SELECT AuthorID,LastName,FirstName FROM[Author]", con);
 
             node_borrower.Fill(dt_borrower);
             node_book.Fill(dt_book);
             node_author.Fill(dt_author);
-            //MessageBox.Show("wew insert command daw putcha");
-            //Insert_Testing();
 
             viewborrowers = CollectionViewSource.GetDefaultView(BORROWERSLIST);
             viewbooks = CollectionViewSource.GetDefaultView(BOOKSLIST);
@@ -65,25 +63,26 @@ namespace LIBRARYMANAGEMENTPART2
             con.Open();
             for (int i = 0;i<dt_borrower.Rows.Count;i++)
             {
-                BORROWERSLIST.Add(new BORROWER(dt_borrower.Rows[i]["LastName"].ToString(), dt_borrower.Rows[i]["FirstName"].ToString(), dt_borrower.Rows[i]["Gender"].ToString(), dt_borrower.Rows[i]["BorrowerType"].ToString(), Convert.ToInt16(dt_borrower.Rows[i]["ID"]), CheckBorrowedBook.NONE.ToString()));
+                BORROWERSLIST.Add(new BORROWER(dt_borrower.Rows[i]["LastName"].ToString(), dt_borrower.Rows[i]["FirstName"].ToString(), dt_borrower.Rows[i]["Gender"].ToString(), dt_borrower.Rows[i]["BorrowerType"].ToString(), Convert.ToInt16(dt_borrower.Rows[i]["BorrowerID"]), dt_borrower.Rows[i]["BorrowStatus"].ToString()));
             }
             for(int i = 0; i<dt_book.Rows.Count;i++)
             {
-                BOOKSLIST.Add(new BOOK(dt_book.Rows[i]["Title"].ToString(), dt_book.Rows[i]["Category"].ToString(), dt_book.Rows[i]["LastName"].ToString(), dt_book.Rows[i]["FirstName"].ToString(), Convert.ToInt16(dt_book.Rows[i]["ID"]), dt_book.Rows[i]["Availability"].ToString()));
+                BOOKSLIST.Add(new BOOK(dt_book.Rows[i]["Title"].ToString(), dt_book.Rows[i]["Category"].ToString(), int.Parse(dt_book.Rows[i]["AuthorID"].ToString()), Convert.ToInt16(dt_book.Rows[i]["BookID"]), dt_book.Rows[i]["Availability"].ToString()));
             }
-        }
-
-        public void Insert_Testing()
-        {
-            SqlCommand _cmmnd = new SqlCommand();
-            _cmmnd = new SqlCommand("INSERT INTO [AUTHOR](Id,LastName,FirstName) VALUES(@Id,@LastName,@FirstName)", con);
-            _cmmnd.Parameters.AddWithValue("@Id", 8);
-            _cmmnd.Parameters.AddWithValue("@LastName", "WeW");
-            _cmmnd.Parameters.AddWithValue("@FirstName", "yayayayayay");
-            con.Open();
-            _cmmnd.ExecuteNonQuery();
             con.Close();
         }
+
+        //public void Insert_Testing()
+        //{
+        //    SqlCommand _cmmnd = new SqlCommand();
+        //    _cmmnd = new SqlCommand("INSERT INTO [AUTHOR](Id,LastName,FirstName) VALUES(@Id,@LastName,@FirstName)", con);
+        //    _cmmnd.Parameters.AddWithValue("@Id", 8);
+        //    _cmmnd.Parameters.AddWithValue("@LastName", "WeW");
+        //    _cmmnd.Parameters.AddWithValue("@FirstName", "yayayayayay");
+        //    con.Open();
+        //    _cmmnd.ExecuteNonQuery();
+        //    con.Close();
+        //}
 
         ////////////////////////////////////////////// ICOLLECTION ///////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -158,11 +157,12 @@ namespace LIBRARYMANAGEMENTPART2
 
         public string title { get; set; }
         public string category { get; set; }
+        public int numberofcopies { get; set; }
         public ObservableCollection<int> bookid { get; set; } = new ObservableCollection<int>();
-        public string authorfirstname { get; set; }
+        public string authorfirstname { get; set; } 
         public string authorlastname { get; set; }
-        public Author selectedauthor { get; set; }
-        public ObservableCollection<Author> bookauthor { get; set; } = new ObservableCollection<Author>();
+        //public Author selectedauthor { get; set; }
+        //public ObservableCollection<Author> bookauthor { get; set; } = new ObservableCollection<Author>();
 
         public void AddBook()
         {
@@ -171,39 +171,72 @@ namespace LIBRARYMANAGEMENTPART2
             var result = addbookwindow.ShowDialog();
             if(result == true)
             {
-                if (title == null | category == null | bookid.Count == 0 | bookauthor.Count == 0)
+                if (title == null | category == null | bookid.Count == 0 | authorfirstname == null|authorlastname == null)
                 {
                     MessageBox.Show("incomplete of filling up the information");
                 }
                 else
                 {
-                    for (int i = 0; i < bookid.Count; i++)
+                    //for (int i = 0; i < bookid.Count; i++)
+                    //{
+                    //    var newbook = new BOOK();
+                    //    newbook.BookTitle = title;
+                    //    newbook.BookCategory = category;
+                    //    newbook.BookAvailability = Availability.AVAILABLE.ToString();
+                    //    for (int a = 0; a < bookauthor.Count; a++)
+                    //    {
+                    //        newbook.BOOKAUTHOR.Add(bookauthor[a]);
+                    //    }
+                    //    newbook.BookIDNumber = bookid[i];
+                    //    BOOKSLIST.Add(newbook);
+                    //}
+                    SqlCommand command_addauthor = new SqlCommand("INSERT INTO [AUTHOR](LastName,FirstName) VALUES(@LastName,@FirstName)", con);
+                    //SqlCommand command_author = new SqlCommand("INSERT INTO [AUTHOR](AuthorID,LastName,FirstName) VALUES(@AuhtorID,@LastName,@FirstName)", con);
+                    //command_author.Parameters.AddWithValue("@AuhtorID",dt_author.Rows.Count+1);
+                    command_addauthor.Parameters.AddWithValue("@LastName", authorlastname);
+                    command_addauthor.Parameters.AddWithValue("@FirstName", authorfirstname);
+                    con.Open();
+                    command_addauthor.ExecuteNonQuery();
+                    con.Close();
+                    MessageBox.Show(dt_author.Rows.Count.ToString());
+                    for (int i = 0;i<bookid.Count;i++)
                     {
-                        var newbook = new BOOK();
-                        newbook.BookTitle = title;
-                        newbook.BookCategory = category;
-                        newbook.BookAvailability = Availability.AVAILABLE.ToString();
-                        for (int a = 0; a < bookauthor.Count; a++)
-                        {
-                            newbook.BOOKAUTHOR.Add(bookauthor[a]);
-                        }
-                        newbook.BookIDNumber = bookid[i];
-                        BOOKSLIST.Add(newbook);
+                        //SqlCommand command_book = new SqlCommand("INSERT INTO [BOOK](BookID,Title,Category,Availability,AuthorID) VALUES(@BookID,@Title,@Category,@Availability,@AuthorID)", con);
+                        SqlCommand command_addbook = new SqlCommand("INSERT INTO [BOOK](Title,Category,Availability,AuthorID) VALUES(@Title,@Category,@Availability,@AuthorID)", con);
+                        //command_book.Parameters.AddWithValue("@BookID", bookid[i]);
+                        command_addbook.Parameters.AddWithValue("@Title", title);
+                        command_addbook.Parameters.AddWithValue("@Category", category);
+                        command_addbook.Parameters.AddWithValue("@Availability", Availability.AVAILABLE.ToString());
+                        command_addbook.Parameters.AddWithValue("@AuthorID", int.Parse(dt_author.Rows[dt_author.Rows.Count-1]["AuthorID"].ToString()));
+                        BOOKSLIST.Add(new BOOK(title, category, int.Parse(dt_author.Rows[dt_author.Rows.Count - 1]["AuthorID"].ToString()), bookid[i], Availability.AVAILABLE.ToString()));
+                        con.Open();
+                        command_addbook.ExecuteNonQuery();
+                        con.Close();
                     }
-                    MessageBox.Show("successfully added the book");
+                    //for(int i = 0;i<bookauthor.Count;i++)
+                    //{
+                    //    SqlCommand command_author = new SqlCommand()
+                    //}
                 }
-                title = null;
-                category = null;
-                bookid.Clear();
-                bookauthor.Clear();
+                //title = null;
+                //category = null;
+                //authorfirstname = null;
+                //authorlastname = null;
+                //bookid.Clear();
+                //bookauthor.Clear();
             }
-            else
-            {
-                title = null;
-                category = null;
-                bookid.Clear();
-                bookauthor.Clear();
-            }
+            //else
+            //{
+            //    title = null;
+            //    category = null;
+            //    bookid.Clear();
+            //    bookauthor.Clear();
+            //}
+            title = null;
+            category = null;
+            authorfirstname = null;
+            authorlastname = null;
+            bookid.Clear();
         }
 
         public void ViewBooksList()
@@ -213,14 +246,14 @@ namespace LIBRARYMANAGEMENTPART2
             bookslistwindow.ShowDialog();
         }
 
-        public void AddBookAuthor()
-        {
-            bookauthor.Add(new Author(authorlastname, authorfirstname));
-        }
-        public void DeleteBookAuthor()
-        {
-            bookauthor.Remove(selectedauthor);
-        }
+        //public void AddBookAuthor()
+        //{
+        //    bookauthor.Add(new Author(authorlastname, authorfirstname));
+        //}
+        //public void DeleteBookAuthor()
+        //{
+        //    bookauthor.Remove(selectedauthor);
+        //}
 
         public DateTime bookdateborrowed { get; set; }
 
@@ -231,24 +264,72 @@ namespace LIBRARYMANAGEMENTPART2
             var result = borrowbookwindow.ShowDialog();
             if(result == true)
             {
-                SelectedBook.BookAvailability = Availability.UNAVAILABLE.ToString();
-                SelectedBook.BookDateBorrowed = bookdateborrowed;
-                if(SelectedBorrower.BorrowerType == "Student")
-                {
-                    SelectedBook.BookDateDeadline = SelectedBook.BookDateBorrowed.AddDays(7);
-                    MessageBox.Show("Date Borrowed: " + SelectedBook.BookDateBorrowed.ToString("MMMM dd, yyyy") + "\n" + "Date Deadline: " + SelectedBook.BookDateDeadline.ToString("MMMM dd, yyyy"));
-                }
-                else
-                {
-                    SelectedBook.BookDateDeadline = SelectedBook.BookDateBorrowed.AddDays(14);
-                    MessageBox.Show("Date Borrowed: " + SelectedBook.BookDateBorrowed.ToString("MMMM dd, yyyy") + "\n" + "Date Deadline: " + SelectedBook.BookDateDeadline.ToString("MMMM dd, yyyy"));
-                }
                 SelectedBorrower.BORROWERBOOKSBORROWED.Add(SelectedBook);
-                if(SelectedBorrower.BORROWERBOOKSBORROWED.Count>0)
+                con.Open();
+                SqlCommand command_borrower = new SqlCommand("UPDATE [BORROWER] SET BorrowStatus=@BorrowStatus  WHERE BorrowerID=@BorrowerID", con);
+                SqlCommand command_book = new SqlCommand("UPDATE [BOOK] SET Availability=@Availability WHERE BookID=@BookID", con);
+                //SqlCommand command_process = new SqlCommand("INSERT INTO [PROCESS](LastName,FirstName) VALUES(@LastName,@FirstName)", con);
+                for (int i = 0; i<dt_book.Rows.Count;i++)
                 {
-                    SelectedBorrower.BorrowerCheckBorrowingBooks = CheckBorrowedBook.BORROWING.ToString();
+                    if(SelectedBook.BookIDNumber == int.Parse(dt_book.Rows[i]["BookID"].ToString()))
+                    {
+                        command_book.Parameters.Add("@BookID", SelectedBook.BookIDNumber);
+                        command_book.Parameters.Add("@Availability",Availability.UNAVAILABLE.ToString());
+                        break;
+                    }
                 }
-                SelectedBook = null;
+                for (int i = 0; i < dt_book.Rows.Count; i++)
+                {
+                    if (SelectedBook.BookIDNumber == BOOKSLIST[i].BookIDNumber)
+                    {
+                        BOOKSLIST[i].BookAvailability = Availability.UNAVAILABLE.ToString();
+                        break;
+                    }
+                }
+
+                for (int i = 0;i<dt_borrower.Rows.Count;i++)
+                {
+                    if(SelectedBorrower.BorrowerIDNumber == int.Parse(dt_borrower.Rows[i]["BorrowerID"].ToString()))
+                    {
+                        command_borrower.Parameters.Add("@BorrowerID", SelectedBorrower.BorrowerIDNumber);
+                        command_borrower.Parameters.Add("@BorrowStatus", CheckBorrowedBook.BORROWING.ToString());
+                        break;
+                    }
+                }
+                for (int i = 0; i < dt_borrower.Rows.Count; i++)
+                {
+                    if (SelectedBorrower.BorrowerIDNumber == BORROWERSLIST[i].BorrowerIDNumber)
+                    {
+                        BORROWERSLIST[i].BorrowerCheckBorrowingBooks = CheckBorrowedBook.BORROWING.ToString();
+                        break;
+                    }
+                }
+                command_book.ExecuteNonQuery();
+                command_borrower.ExecuteNonQuery();
+                con.Close();
+                MessageBox.Show("Successfully borrowed the book");
+
+
+
+
+                //SelectedBook.BookAvailability = Availability.UNAVAILABLE.ToString();
+                //SelectedBook.BookDateBorrowed = bookdateborrowed;
+                //if(SelectedBorrower.BorrowerType == "Student")
+                //{
+                //    SelectedBook.BookDateDeadline = SelectedBook.BookDateBorrowed.AddDays(7);
+                //    MessageBox.Show("Date Borrowed: " + SelectedBook.BookDateBorrowed.ToString("MMMM dd, yyyy") + "\n" + "Date Deadline: " + SelectedBook.BookDateDeadline.ToString("MMMM dd, yyyy"));
+                //}
+                //else
+                //{
+                //    SelectedBook.BookDateDeadline = SelectedBook.BookDateBorrowed.AddDays(14);
+                //    MessageBox.Show("Date Borrowed: " + SelectedBook.BookDateBorrowed.ToString("MMMM dd, yyyy") + "\n" + "Date Deadline: " + SelectedBook.BookDateDeadline.ToString("MMMM dd, yyyy"));
+                //}
+                //SelectedBorrower.BORROWERBOOKSBORROWED.Add(SelectedBook);
+                //if(SelectedBorrower.BORROWERBOOKSBORROWED.Count>0)
+                //{
+                //    SelectedBorrower.BorrowerCheckBorrowingBooks = CheckBorrowedBook.BORROWING.ToString();
+                //}
+                //SelectedBook = null;
             }
         }
 
@@ -303,30 +384,25 @@ namespace LIBRARYMANAGEMENTPART2
                 }
                 else
                 {
-                    SqlCommand _cmmnd = new SqlCommand("INSERT INTO [BORROWER](ID,LastName,Gender,FirstName,BorrowerType) VALUES(@ID,@LastName,@Gender,@FirstName,@BorrowerType)", con);
-                    _cmmnd.Parameters.AddWithValue("@ID", idnumber);
-                    _cmmnd.Parameters.AddWithValue("@LastName", lastname);
-                    _cmmnd.Parameters.AddWithValue("@Gender", gender);
-                    _cmmnd.Parameters.AddWithValue("@FirstName", firstname);
-                    _cmmnd.Parameters.AddWithValue("@BorrowerType", type);
+                    SqlCommand command_borrower = new SqlCommand("INSERT INTO [BORROWER](LastName,Gender,FirstName,BorrowerType,BorrowStatus) VALUES(@LastName,@Gender,@FirstName,@BorrowerType,@BorrowStatus)", con);
+                    //SqlCommand command_borrower = new SqlCommand("INSERT INTO [BORROWER](ID,LastName,Gender,FirstName,BorrowerType,BorrowStatus) VALUES(@ID,@LastName,@Gender,@FirstName,@BorrowerType,@BorrowStatus)", con);
+                    //command_borrower.Parameters.AddWithValue("@ID", idnumber);
+                    command_borrower.Parameters.AddWithValue("@LastName", lastname);
+                    command_borrower.Parameters.AddWithValue("@Gender", gender);
+                    command_borrower.Parameters.AddWithValue("@FirstName", firstname);
+                    command_borrower.Parameters.AddWithValue("@BorrowerType", type);
+                    command_borrower.Parameters.AddWithValue("@BorrowStatus", CheckBorrowedBook.NONE.ToString());
                     con.Open();
-                    _cmmnd.ExecuteNonQuery();
+                    command_borrower.ExecuteNonQuery();
                     con.Close();
-                    //BORROWERSLIST.Add(new BORROWER(lastname, firstname, gender, type, idnumber, CheckBorrowedBook.NONE.ToString()));
+                    BORROWERSLIST.Add(new BORROWER(lastname, firstname, gender, type, idnumber, CheckBorrowedBook.NONE.ToString()));
                     MessageBox.Show("successfully added the borrower");
                 }
-                lastname = null;
-                firstname = null;
-                gender = null;
-                type = null;
             }
-            else
-            {
-                lastname = null;
-                firstname = null;
-                gender = null;
-                type = null;
-            }
+            lastname = null;
+            firstname = null;
+            gender = null;
+            type = null;
         }
         public BORROWER editborrower = new BORROWER();
         public void EditBorrower()
@@ -392,25 +468,76 @@ namespace LIBRARYMANAGEMENTPART2
             var result = returnbookwindow.ShowDialog();
             if(result == true)
             {
-                for(int a = 0;a< BOOKSLIST.Count; a++)
+                for(int i = 0;i<BOOKSLIST.Count;i++)
                 {
-                    if(BOOKSLIST[a].BookIDNumber == SelectedReturnBook.BookIDNumber)
+                    if(SelectedReturnBook.BookIDNumber == BOOKSLIST[i].BookIDNumber)
                     {
-                        BOOKSLIST[a].BookAvailability = Availability.AVAILABLE.ToString();
-                        SelectedBorrower.BORROWERBOOKSBORROWED.Remove(SelectedReturnBook);
-                        if (SelectedBorrower.BORROWERBOOKSBORROWED.Count > 0)
-                        {
-                            SelectedBorrower.BorrowerCheckBorrowingBooks = CheckBorrowedBook.BORROWING.ToString();
-                        }
-                        else if(SelectedBorrower.BORROWERBOOKSBORROWED.Count == 0)
-                        {
-                            SelectedBorrower.BorrowerCheckBorrowingBooks = CheckBorrowedBook.NONE.ToString();
-                        }
-                        SelectedReturnBook = null;
+
+                    }
+                }
+
+                con.Open();
+                SqlCommand command_returnbook = new SqlCommand("UPDATE [BOOK] SET Availability=@Availability WHERE BookID=@BookID", con);
+                SqlCommand command_returnborrower = new SqlCommand("UPDATE [BORROWER] SET BorrowStatus=@BorrowStatus  WHERE ID=@ID", con);
+                for (int i =0;i<dt_book.Rows.Count;i++)
+                {
+                    if(int.Parse(dt_book.Rows[i]["BookID"].ToString())==SelectedReturnBook.BookIDNumber)
+                    {
+                        command_returnbook.Parameters.Add("@BookID", SelectedReturnBook.BookIDNumber);
+                        command_returnbook.Parameters.Add("@Availability", Availability.AVAILABLE.ToString());
                         break;
                     }
                 }
-                MessageBox.Show("successfully returned the book");
+                for(int i = 0; i < BOOKSLIST.Count; i++)
+                {
+                    if (int.Parse(dt_book.Rows[i]["BookID"].ToString()) == SelectedReturnBook.BookIDNumber)
+                    {
+                        BOOKSLIST[i].BookAvailability = Availability.AVAILABLE.ToString();
+                        break;
+                    }
+                }
+
+                for (int i = 0; i < dt_borrower.Rows.Count; i++)
+                {
+                    if (int.Parse(dt_borrower.Rows[i]["BorrowerID"].ToString()) == SelectedBorrower.BorrowerIDNumber)
+                    {
+                        command_returnborrower.Parameters.Add("@BorrowerID", SelectedBorrower.BorrowerIDNumber);
+                        command_returnborrower.Parameters.Add("@BorrowStatus", CheckBorrowedBook.NONE.ToString());
+                        break;
+                    }
+                }
+                for (int i = 0; i < BORROWERSLIST.Count; i++)
+                {
+                    if (BORROWERSLIST[i].BorrowerIDNumber == SelectedBorrower.BorrowerIDNumber)
+                    {
+                        BORROWERSLIST[i].BorrowerCheckBorrowingBooks = CheckBorrowedBook.NONE.ToString();
+                        break;
+                    }
+                }
+
+                command_returnbook.ExecuteNonQuery();
+                command_returnborrower.ExecuteNonQuery();
+                con.Close();
+                MessageBox.Show(SelectedBorrower.BorrowerFirstName+" returned the book "+SelectedReturnBook.BookTitle);
+                //for(int a = 0;a< BOOKSLIST.Count; a++)
+                //{
+                //    if(BOOKSLIST[a].BookIDNumber == SelectedReturnBook.BookIDNumber)
+                //    {
+                //        BOOKSLIST[a].BookAvailability = Availability.AVAILABLE.ToString();
+                //        SelectedBorrower.BORROWERBOOKSBORROWED.Remove(SelectedReturnBook);
+                //        if (SelectedBorrower.BORROWERBOOKSBORROWED.Count > 0)
+                //        {
+                //            SelectedBorrower.BorrowerCheckBorrowingBooks = CheckBorrowedBook.BORROWING.ToString();
+                //        }
+                //        else if(SelectedBorrower.BORROWERBOOKSBORROWED.Count == 0)
+                //        {
+                //            SelectedBorrower.BorrowerCheckBorrowingBooks = CheckBorrowedBook.NONE.ToString();
+                //        }
+                //        SelectedReturnBook = null;
+                //        break;
+                //    }
+                //}
+                //MessageBox.Show("successfully returned the book");
             }
         }
 

@@ -51,23 +51,29 @@ namespace LIBRARYMANAGEMENTPART2
         public DateTime BookDateBorrowed { get; set; }
         public DateTime BookDateDeadline { get; set; }
         public DateTime BookDateReturn { get; set; }
-        private ObservableCollection<Author> BookAuthor = new ObservableCollection<Author>();
-        public ObservableCollection<Author> BOOKAUTHOR
+        private int bookauthorid;
+        public int BookAuthorID
         {
-            get { return BookAuthor; }
-            set { BookAuthor = value; }
+            get { return bookauthorid; }
+            set { bookauthorid = value; }
         }
+        //private ObservableCollection<Author> BookAuthor = new ObservableCollection<Author>();
+        //public ObservableCollection<Author> BOOKAUTHOR
+        //{
+        //    get { return BookAuthor; }
+        //    set { BookAuthor = value; }
+        //}
         /// <extra>
-        public string BookAuthorName { get; set; }
+        //public string BookAuthorName { get; set; }
         /// </extra>
 
         public BOOK() { }
 
-        public BOOK(string title, string category, string authorln, string authorfn, int id, string availability)
+        public BOOK(string title, string category, int authorid, int id, string availability)
         {
             BookTitle = title;
             BookCategory = category;
-            BookAuthorName = authorln + "," + authorfn;
+            BookAuthorID = authorid;
             BookIDNumber = id;
             BookAvailability = availability;
         }

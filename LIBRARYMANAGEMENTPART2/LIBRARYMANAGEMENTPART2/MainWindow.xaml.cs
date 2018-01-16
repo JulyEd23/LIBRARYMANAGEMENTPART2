@@ -47,7 +47,7 @@ namespace LIBRARYMANAGEMENTPART2
 
         private void ButtonExitProgram_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            DialogResult = true;
         }
 
         private void ButtonAddBorrower_Click(object sender, RoutedEventArgs e)

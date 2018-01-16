@@ -42,7 +42,7 @@ namespace LIBRARYMANAGEMENTPART2
                     txtbxusername.Text = "";
                     psswrdbx.Password = "";
                     var mainwindow = new MainWindow();
-                    mainwindow.Show();
+                    mainwindow.ShowDialog();
                 }
                 else
                 {

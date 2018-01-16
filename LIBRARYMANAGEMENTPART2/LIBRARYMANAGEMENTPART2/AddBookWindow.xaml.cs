@@ -29,33 +29,41 @@ namespace LIBRARYMANAGEMENTPART2
         private void ComboBoxNoofCopies_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ViewModelLocator.MAINVIEWMODEL.bookid.Clear();
-            Random r = new Random();
-            for (int i = 0; i<int.Parse(ComboBoxNoofCopies.SelectedItem.ToString()); i++)
-            {
-                bool oops;
-                do
-                {
-                    oops = false;
-                    int a = r.Next(0, 10);
-                    int b = r.Next(0, 10);
-                    int c = r.Next(0, 10);
-                    int d = r.Next(0, 10);
-                    int f = r.Next(0, 10);
+            //Random r = new Random();
+            //for (int i = 0; i<int.Parse(ComboBoxNoofCopies.SelectedItem.ToString()); i++)
+            //{
+            //    bool oops;
+            //    do
+            //    {
+            //        oops = false;
+            //        int a = r.Next(0, 10);
+            //        int b = r.Next(0, 10);
+            //        int c = r.Next(0, 10);
+            //        int d = r.Next(0, 10);
+            //        int f = r.Next(0, 10);
 
-                    for (int x = 0; x < ViewModelLocator.MAINVIEWMODEL.BOOKSLIST.Count; x++)
-                    {
-                        if (ViewModelLocator.MAINVIEWMODEL.BOOKSLIST[x].BookIDNumber == int.Parse(a.ToString() + b.ToString() + c.ToString() + d.ToString() + f.ToString()))
-                        {
-                            oops = true;
-                            break;
-                        }
-                    }
-                    if (oops == false)
-                    {
-                        ViewModelLocator.MAINVIEWMODEL.bookid.Add(int.Parse(a.ToString() + b.ToString() + c.ToString() + d.ToString() + f.ToString()));
-                    }
-                }
-                while (oops == true);
+            //        for (int x = 0; x < ViewModelLocator.MAINVIEWMODEL.BOOKSLIST.Count; x++)
+            //        {
+            //            if (ViewModelLocator.MAINVIEWMODEL.BOOKSLIST[x].BookIDNumber == int.Parse(a.ToString() + b.ToString() + c.ToString() + d.ToString() + f.ToString()))
+            //            {
+            //                oops = true;
+            //                break;
+            //            }
+            //        }
+            //        if (oops == false)
+            //        {
+            //            ViewModelLocator.MAINVIEWMODEL.bookid.Add(int.Parse(a.ToString() + b.ToString() + c.ToString() + d.ToString() + f.ToString()));
+            //        }
+            //    }
+            //    while (oops == true);
+            //}
+
+            var numberofcopies = int.Parse(ComboBoxNoofCopies.SelectedItem.ToString());
+            ViewModelLocator.MAINVIEWMODEL.numberofcopies = numberofcopies;
+            for(int i = 0;i<numberofcopies;i++)
+            {
+                ViewModelLocator.MAINVIEWMODEL.bookid.Add(ViewModelLocator.MAINVIEWMODEL.dt_book.Rows.Count + 1+i);
+                //ListBoxIDNumbers.Items.Add(ViewModelLocator.MAINVIEWMODEL.dt_book.Rows.Count+1);
             }
         }
 
@@ -65,33 +73,33 @@ namespace LIBRARYMANAGEMENTPART2
             this.Close();
         }
 
-        private void ButtonDeleteAuthor_Click(object sender, RoutedEventArgs e)
-        {
-            if (ViewModelLocator.MAINVIEWMODEL.selectedauthor == null)
-            {
-                MessageBox.Show("Select an author to delete");
-            }
-            else
-            {
-                ViewModelLocator.MAINVIEWMODEL.DeleteBookAuthor();
-            }
-        }
+        //private void ButtonDeleteAuthor_Click(object sender, RoutedEventArgs e)
+        //{
+        //    if (ViewModelLocator.MAINVIEWMODEL.selectedauthor == null)
+        //    {
+        //        MessageBox.Show("Select an author to delete");
+        //    }
+        //    else
+        //    {
+        //        ViewModelLocator.MAINVIEWMODEL.DeleteBookAuthor();
+        //    }
+        //}
 
-        private void ButtonAddAuthor_Click(object sender, RoutedEventArgs e)
-        {
-            if (TextBoxAuthorFirstName.Text == "" || TextboxAuthorLastName.Text == "")
-            {
-                MessageBox.Show("Kindly fill all  the blanks about the author's name");
-            }
-            else
-            {
-                ViewModelLocator.MAINVIEWMODEL.AddBookAuthor();
-                ViewModelLocator.MAINVIEWMODEL.authorfirstname = null;
-                ViewModelLocator.MAINVIEWMODEL.authorlastname = null;
-                TextBoxAuthorFirstName.Text = "";
-                TextboxAuthorLastName.Text = "";
-            }
-        }
+        //private void ButtonAddAuthor_Click(object sender, RoutedEventArgs e)
+        //{
+        //    if (TextBoxAuthorFirstName.Text == "" || TextboxAuthorLastName.Text == "")
+        //    {
+        //        MessageBox.Show("Kindly fill all  the blanks about the author's name");
+        //    }
+        //    else
+        //    {
+        //        ViewModelLocator.MAINVIEWMODEL.AddBookAuthor();
+        //        ViewModelLocator.MAINVIEWMODEL.authorfirstname = null;
+        //        ViewModelLocator.MAINVIEWMODEL.authorlastname = null;
+        //        TextBoxAuthorFirstName.Text = "";
+        //        TextboxAuthorLastName.Text = "";
+        //    }
+        //}
 
         private void ButtonExit_Click(object sender, RoutedEventArgs e)
         {

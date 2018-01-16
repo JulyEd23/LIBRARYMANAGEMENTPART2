@@ -28,7 +28,7 @@ namespace LIBRARYMANAGEMENTPART2
         public AddBorrowerWindow()
         {
             InitializeComponent();
-            bool oops;
+            //bool oops;
 
             //do
             //{
@@ -60,7 +60,7 @@ namespace LIBRARYMANAGEMENTPART2
             //while (oops == true);
 
             var dt_borrower = new DataTable();
-            var node_borrower = new SqlDataAdapter("SELECT LastName,FirstName,Gender,BorrowerType,ID FROM [BORROWER]", ViewModelLocator.MAINVIEWMODEL.con);
+            var node_borrower = new SqlDataAdapter("SELECT LastName,FirstName,Gender,BorrowerType,BorrowerID FROM [BORROWER]", ViewModelLocator.MAINVIEWMODEL.con);
             node_borrower.Fill(dt_borrower);
             TextBlockIDNumber.Text = (dt_borrower.Rows.Count + 1).ToString();
         }
@@ -90,7 +90,7 @@ namespace LIBRARYMANAGEMENTPART2
         {
             if(RadioButtonStudent.IsChecked == true)
             {
-                ViewModelLocator.MAINVIEWMODEL.type = "Student";
+                ViewModelLocator.MAINVIEWMODEL.type = "STUDENT";
             }
         }
 
@@ -98,7 +98,7 @@ namespace LIBRARYMANAGEMENTPART2
         {
             if(RadioButtonTeacher.IsChecked == true)
             {
-                ViewModelLocator.MAINVIEWMODEL.type = "Teacher";
+                ViewModelLocator.MAINVIEWMODEL.type = "TEACHER";
             }
         }
 
